@@ -58,3 +58,5 @@
 @media(max-width:600px){.article-header{padding:12px 4%;}.article-header .brand{font-size:20px}.article-body{font-size:17px}.footer-links{gap:10px;font-size:13px}}
 /* Keep footer at the bottom on short pages without floating it over content */
 html,body{min-height:100%}body{min-height:100vh;display:flex;flex-direction:column}body>main,body>.wrap:not(.masthead){flex:0 0 auto}body>footer{margin-top:auto}body>.article-wrap{flex:1 0 auto}
+
+.color-picker-row{display:flex;align-items:center;gap:14px;min-height:48px}.color-picker-row input[type=color]{width:76px;height:48px;padding:4px;border:1px solid var(--line);border-radius:7px;background:var(--bg);cursor:pointer}.color-picker-row span{font:700 16px Inter, sans-serif}.font-preview{padding:14px;border:1px dashed var(--line);border-radius:7px;background:var(--soft);font-size:20px;min-height:55px}

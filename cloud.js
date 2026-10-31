@@ -21,6 +21,6 @@
     const login=document.getElementById("visitorLogin"),out=document.getElementById("visitorLogout"),adminLink=document.getElementById("adminDashboardLink");
     if(login)login.addEventListener("click",async()=>{const status=document.getElementById("visitorAuthStatus");try{if(!configured)throw new Error("Gmail Login চালু করতে Firebase Project Config বসাতে হবে। README.md দেখুন।");if(status)status.textContent="Google Login হচ্ছে...";await googleLogin();if(status)status.textContent="";}catch(e){if(status)status.textContent=e.message||"Google Login হয়নি";}});
     if(out)out.addEventListener("click",logout);
-    if(auth)auth.onAuthStateChanged(user=>{if(login)login.hidden=!!user;if(out)out.hidden=!user;if(adminLink)adminLink.hidden=!(user&&isAdmin());const status=document.getElementById("visitorAuthStatus");if(status&&user)status.textContent="Gmail দিয়ে লগইন হয়েছে।"});
+    if(auth)auth.onAuthStateChanged(user=>{if(login)login.hidden=!!user;if(out)out.hidden=!user;if(adminLink)adminLink.hidden=!(user&&isAdmin());const status=document.getElementById("visitorAuthStatus");if(status&&user)status.textContent="Gmail দিয়ে লগইন হয়েছে।";if(user&&isAdmin()&&!/admin\.html(?:$|[?#])/.test(location.pathname+location.search+location.hash)){location.href="admin.html";}});
   });
 })();
