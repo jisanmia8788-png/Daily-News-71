@@ -13,6 +13,31 @@ const getNews=()=>{try{return JSON.parse(localStorage.getItem(KEY))||demo}catch(
 const saveNews=n=>localStorage.setItem(KEY,JSON.stringify(n));
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const img=n=>n.image||"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=700";
+
+function renderBreakingTicker(){
+  const ticker=document.getElementById("breakingTicker");
+  if(!ticker)return;
+  const news=getNews().slice().sort((a,b)=>Number(!!b.breaking)-Number(!!a.breaking));
+  const headlines=news.map(n=>n.titleEn&&document.documentElement.lang==="en"?n.titleEn:n.title).filter(Boolean);
+  const items=headlines.length?headlines:["বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ জানতে চোখ রাখুন NewsBangla24-এ"];
+  const markup=items.map(t=>`<span class="ticker-item">${esc(t)}</span>`).join('<span class="ticker-separator">◆</span>');
+  ticker.innerHTML=markup+`<span class="ticker-separator">◆</span>`+markup;
+  ticker.style.setProperty("--ticker-duration",Math.max(22,items.length*8)+"s");
+}
+function updateTopDate(){
+  const date=document.getElementById("today");
+  if(!date)return;
+  const now=new Date();
+  const english=new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric"}).format(now);
+  let bangla="";
+  try{
+    bangla=new Intl.DateTimeFormat("bn-BD-u-ca-bengali",{day:"numeric",month:"long",year:"numeric"}).format(now)+" বঙ্গাব্দ";
+  }catch(e){
+    bangla=new Intl.DateTimeFormat("bn-BD",{day:"numeric",month:"long",year:"numeric"}).format(now);
+  }
+  date.innerHTML=`<span class="date-en">${esc(english)}</span><span class="date-bn">${esc(bangla)}</span>`;
+}
+
 function openArticle(n){const m=document.getElementById("articleModal");if(!m)return;document.getElementById("articleContent").innerHTML=`<img src="${esc(img(n))}" alt=""><span class="tag">${esc(n.category)}</span><h1>${esc(n.title)}</h1><p class="meta">${esc(n.date||"Just now")} · ${esc(n.views||"New")}</p><p><b>${esc(n.summary)}</b></p><p>${esc(n.body||n.summary)}</p>`;m.classList.add("show");m.setAttribute("aria-hidden","false")}
 function renderHome(filter="",query=""){let all=getNews();if(filter&&filter!=="সব")all=all.filter(n=>n.category===filter);if(query)all=all.filter(n=>(n.title+n.summary+n.category).toLowerCase().includes(query.toLowerCase()));let original=getNews(),hero=all.find(n=>n.featured)||all[0]||original[0];const h=document.getElementById("hero");if(h){h.style.backgroundImage=`url("${img(hero)}")`;h.innerHTML=`<div class="hero-content"><span class="tag">${esc(hero.category)}</span><h1>${esc(hero.title)}</h1><p>${esc(hero.summary)}</p><div class="meta">◷ ${esc(hero.date||"Just now")}　 ◉ ${esc(hero.views||"New")}</div></div>`;h.onclick=()=>openArticle(hero)}
 const side=all.filter(n=>n.id!==hero.id).slice(0,3);const s=document.getElementById("topStories");if(s)s.innerHTML=side.map(n=>`<article class="story-mini" data-id="${esc(n.id)}"><img src="${esc(img(n))}"><div><span class="tag">${esc(n.category)}</span><h3>${esc(n.title)}</h3><span class="meta">◷ ${esc(n.date||"Just now")}</span></div></article>`).join("");
@@ -21,9 +46,9 @@ const mr=document.getElementById("mostRead");if(mr)mr.innerHTML=original.slice(0
 const cats=document.getElementById("categories");if(cats)cats.innerHTML=["সব","জাতীয়","রাজনীতি","অর্থনীতি","প্রযুক্তি","খেলাধুলা","বিনোদন","আন্তর্জাতিক","স্বাস্থ্য"].map(c=>`<button data-cat="${c}">${c}</button>`).join("");
 document.querySelectorAll("[data-id]").forEach(el=>el.addEventListener("click",()=>{let n=getNews().find(x=>x.id===el.dataset.id);if(n)openArticle(n)}));}
 document.addEventListener("DOMContentLoaded",()=>{
-const date=document.getElementById("today");if(date)date.textContent=new Date().toLocaleDateString("en",{weekday:"short",month:"short",day:"numeric",year:"numeric"});const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();
+updateTopDate();const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();
 if(!localStorage.getItem(KEY))saveNews(demo);
-let breaking=getNews().find(n=>n.breaking);let bt=document.getElementById("breakingText");if(bt&&breaking)bt.textContent=breaking.title;renderHome();
+renderBreakingTicker();renderHome();
 document.getElementById("themeToggle")?.addEventListener("click",()=>{document.body.classList.toggle("dark");localStorage.setItem("nb24theme",document.body.classList.contains("dark")?"dark":"light")});if(localStorage.getItem("nb24theme")==="dark")document.body.classList.add("dark");
 document.getElementById("langToggle")?.addEventListener("click",()=>alert("বাংলা / English content support is enabled. Add English headlines from Admin Dashboard."));
 document.getElementById("menuToggle")?.addEventListener("click",()=>document.getElementById("navLinks").classList.toggle("open"));
@@ -36,6 +61,6 @@ if(document.getElementById("newsForm"))initAdmin();
 });
 function initAdmin(){const $=id=>document.getElementById(id),form=$("newsForm");function refresh(){let n=getNews();$("statTotal").textContent=n.length;$("statBreaking").textContent=n.filter(x=>x.breaking).length;$("statCats").textContent=new Set(n.map(x=>x.category)).size;let q=$("adminSearch").value.toLowerCase();$("adminList").innerHTML=n.filter(x=>x.title.toLowerCase().includes(q)).map(x=>`<div class="admin-item"><img src="${esc(img(x))}"><div class="item-info"><b>${esc(x.title)}</b><small>${esc(x.category)} · ${x.breaking?"Breaking · ":""}${esc(x.date||"Just now")}</small></div><button class="edit-btn" data-edit="${esc(x.id)}">Edit</button><button class="delete-btn" data-delete="${esc(x.id)}">Delete</button></div>`).join("")||"<p>কোনো খবর নেই।</p>";}
 function clear(){form.reset();$("newsId").value="";$("formHeading").textContent="নতুন খবর যোগ করুন / Add News";$("saveButton").textContent="খবর প্রকাশ করুন"}
-form.addEventListener("submit",e=>{e.preventDefault();let n=getNews(),id=$("newsId").value;let item={id:id||String(Date.now()),title:$("title").value.trim(),titleEn:$("titleEn").value.trim(),category:$("category").value,image:$("image").value.trim(),summary:$("summary").value.trim(),body:$("body").value.trim(),breaking:$("breakingCheck").checked,featured:$("featuredCheck").checked,date:"Just now",views:"New"};if(id)n=n.map(x=>x.id===id?{...x,...item}:x);else n.unshift(item);if(item.featured)n=n.map(x=>x.id===item.id?x:{...x,featured:false});saveNews(n);clear();refresh();alert("খবর সংরক্ষণ হয়েছে!");});
-$("adminList").addEventListener("click",e=>{let id=e.target.dataset.edit||e.target.dataset.delete;if(!id)return;let n=getNews();if(e.target.dataset.delete){if(confirm("এই খবরটি মুছে ফেলবেন?")){saveNews(n.filter(x=>x.id!==id));refresh()}return}let x=n.find(x=>x.id===id);$("newsId").value=x.id;$("title").value=x.title;$("titleEn").value=x.titleEn||"";$("category").value=x.category;$("image").value=x.image||"";$("summary").value=x.summary||"";$("body").value=x.body||"";$("breakingCheck").checked=!!x.breaking;$("featuredCheck").checked=!!x.featured;$("formHeading").textContent="খবর সম্পাদনা করুন / Edit News";$("saveButton").textContent="পরিবর্তন সংরক্ষণ করুন";window.scrollTo({top:0,behavior:"smooth"})});
-$("cancelEdit").addEventListener("click",clear);$("adminSearch").addEventListener("input",refresh);$("resetData").addEventListener("click",()=>{if(confirm("সব পরিবর্তন মুছে ডেমো খবর ফিরিয়ে আনবেন?")){saveNews(demo);clear();refresh()}});refresh();}
+form.addEventListener("submit",e=>{e.preventDefault();let n=getNews(),id=$("newsId").value;let item={id:id||String(Date.now()),title:$("title").value.trim(),titleEn:$("titleEn").value.trim(),category:$("category").value,image:$("image").value.trim(),summary:$("summary").value.trim(),body:$("body").value.trim(),breaking:$("breakingCheck").checked,featured:$("featuredCheck").checked,date:"Just now",views:"New"};if(id)n=n.map(x=>x.id===id?{...x,...item}:x);else n.unshift(item);if(item.featured)n=n.map(x=>x.id===item.id?x:{...x,featured:false});saveNews(n);renderBreakingTicker();clear();refresh();alert("খবর সংরক্ষণ হয়েছে!");});
+$("adminList").addEventListener("click",e=>{let id=e.target.dataset.edit||e.target.dataset.delete;if(!id)return;let n=getNews();if(e.target.dataset.delete){if(confirm("এই খবরটি মুছে ফেলবেন?")){saveNews(n.filter(x=>x.id!==id));renderBreakingTicker();refresh()}return}let x=n.find(x=>x.id===id);$("newsId").value=x.id;$("title").value=x.title;$("titleEn").value=x.titleEn||"";$("category").value=x.category;$("image").value=x.image||"";$("summary").value=x.summary||"";$("body").value=x.body||"";$("breakingCheck").checked=!!x.breaking;$("featuredCheck").checked=!!x.featured;$("formHeading").textContent="খবর সম্পাদনা করুন / Edit News";$("saveButton").textContent="পরিবর্তন সংরক্ষণ করুন";window.scrollTo({top:0,behavior:"smooth"})});
+$("cancelEdit").addEventListener("click",clear);$("adminSearch").addEventListener("input",refresh);$("resetData").addEventListener("click",()=>{if(confirm("সব পরিবর্তন মুছে ডেমো খবর ফিরিয়ে আনবেন?")){saveNews(demo);renderBreakingTicker();clear();refresh()}});refresh();}
