@@ -17,7 +17,7 @@ python -m http.server 8000
 Then visit `http://localhost:8000`.
 
 ## Deploy to GitHub Pages
-1. Create a GitHub repository and upload all files/folders in this project.
+1. Create a GitHub repository and upload these five files directly into the repository root: `index.html`, `admin.html`, `style.css`, `app.js`, and `README.md`. No `assets` folder is needed.
 2. Open **Settings → Pages**.
 3. Under **Build and deployment**, select **Deploy from a branch**.
 4. Select `main` and `/ (root)`, then Save.
