@@ -15,9 +15,9 @@
   function watchAuth(callback){if(auth)return auth.onAuthStateChanged(callback);callback(null);return ()=>{}}
   window.NBCloud={configured:configured,isAdmin:isAdmin,googleLogin:googleLogin,logout:logout,subscribe:subscribe,saveNews:saveNews,startNewsSync:startNewsSync,watchAuth:watchAuth,get currentUser(){return auth&&auth.currentUser}};
   document.addEventListener("DOMContentLoaded",()=>{
-    const login=document.getElementById("visitorLogin"),out=document.getElementById("visitorLogout");
+    const login=document.getElementById("visitorLogin"),out=document.getElementById("visitorLogout"),adminLink=document.getElementById("adminDashboardLink");
     if(login)login.addEventListener("click",async()=>{const status=document.getElementById("visitorAuthStatus");try{if(!configured)throw new Error("Gmail Login চালু করতে Firebase Project Config বসাতে হবে। README.md দেখুন।");if(status)status.textContent="Google Login হচ্ছে...";await googleLogin();if(status)status.textContent="";}catch(e){if(status)status.textContent=e.message||"Google Login হয়নি";}});
     if(out)out.addEventListener("click",logout);
-    if(auth)auth.onAuthStateChanged(user=>{if(login)login.hidden=!!user;if(out)out.hidden=!user;const adminLink=document.getElementById("adminDashboardLink");if(adminLink)adminLink.hidden=!(user&&isAdmin());const status=document.getElementById("visitorAuthStatus");if(status&&user)status.textContent="Gmail দিয়ে লগইন হয়েছে।"});
+    if(auth)auth.onAuthStateChanged(user=>{if(login)login.hidden=!!user;if(out)out.hidden=!user;if(adminLink)adminLink.hidden=!(user&&isAdmin());const status=document.getElementById("visitorAuthStatus");if(status&&user)status.textContent="Gmail দিয়ে লগইন হয়েছে।"});
   });
 })();
