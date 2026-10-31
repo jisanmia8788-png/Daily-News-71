@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard | NewsBangla24</title><link rel="stylesheet" href="style.css"></head>
 <body class="admin-page"><header class="admin-header"><a class="brand" href="index.html">News<span class="red">Bangla</span>24</a><a class="button light" href="index.html">← View Website</a></header>
-<main class="admin-wrap"><div class="admin-title"><div><p class="eyebrow">CONTENT MANAGEMENT</p><h1>News Dashboard</h1><p>খবর যোগ, সম্পাদনা ও প্রকাশ করুন</p></div><button id="resetData" class="button danger-outline">ডেমো ডেটা রিসেট</button></div>
+<main class="admin-wrap"><section class="admin-card" id="adminAuth"><h2>Admin Login</h2><p>শুধুমাত্র অনুমোদিত Admin Gmail দিয়ে প্রবেশ করতে পারবেন।</p><button class="button" id="adminGoogleLogin">Continue with Google</button><p id="adminAuthStatus" aria-live="polite"></p></section><div id="adminDashboard" hidden><div class="admin-title"><div><p class="eyebrow">CONTENT MANAGEMENT</p><h1>News Dashboard</h1><p>খবর যোগ, সম্পাদনা ও প্রকাশ করুন</p></div><button id="resetData" class="button danger-outline">ডেমো ডেটা রিসেট</button></div>
 <div class="stats"><div><b id="statTotal">0</b><span>Total News</span></div><div><b id="statBreaking">0</b><span>Breaking News</span></div><div><b id="statCats">0</b><span>Categories</span></div></div>
 <section class="admin-card"><h2 id="formHeading">নতুন খবর যোগ করুন / Add News</h2><form id="newsForm" class="news-form">
 <input type="hidden" id="newsId"><label>শিরোনাম / Headline *<input id="title" required placeholder="খবরের শিরোনাম লিখুন"></label>
@@ -12,4 +12,4 @@
 <div class="form-actions"><button class="button" type="submit" id="saveButton">খবর প্রকাশ করুন</button><button class="button secondary" type="button" id="cancelEdit">Clear</button></div></form></section>
 <section class="admin-card"><div class="list-heading"><h2>প্রকাশিত খবর / Manage News</h2><input id="adminSearch" placeholder="খবর খুঁজুন..."></div><div id="adminList" class="admin-list"></div></section>
 <p class="notice"><b>নোট:</b> এই ডেমো সংস্করণে ডেটা এই ব্রাউজারের LocalStorage-এ সংরক্ষিত হয়। অন্য ডিভাইসে স্বয়ংক্রিয়ভাবে Sync হয় না। Public website-এ admin.html লিংকটি সরিয়ে দিন এবং production ব্যবহারের আগে authentication/backend যুক্ত করুন।</p>
-</main><script src="app.js"></script></body></html>
+</div></main><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><script src="cloud.js"></script><script src="app.js"></script><script src="admin-auth.js"></script></body></html>

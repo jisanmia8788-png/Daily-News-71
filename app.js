@@ -10,7 +10,7 @@ const demo=[
 {id:"8",title:"নতুন সিনেমায় চমক দিচ্ছেন জনপ্রিয় অভিনেত্রী",category:"বিনোদন",image:"https://images.unsplash.com/photo-1485846234645-a62644f84728?w=700",summary:"নতুন সিনেমা নিয়ে দর্শকদের আগ্রহ তৈরি হয়েছে।",body:"নতুন সিনেমার কাজ ও মুক্তির পরিকল্পনা নিয়ে বিনোদন অঙ্গনে আলোচনা চলছে।",date:"1 hour ago",views:"3.8K"}
 ];
 const getNews=()=>{try{return JSON.parse(localStorage.getItem(KEY))||demo}catch(e){return demo}};
-const saveNews=n=>localStorage.setItem(KEY,JSON.stringify(n));
+const saveNews=n=>{localStorage.setItem(KEY,JSON.stringify(n));if(window.NBCloud&&window.NBCloud.isAdmin())window.NBCloud.saveNews(n).catch(e=>console.error("Cloud save:",e));};
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const img=n=>n.image||"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=700";
 
@@ -48,7 +48,7 @@ document.querySelectorAll("[data-id]").forEach(el=>el.addEventListener("click",(
 document.addEventListener("DOMContentLoaded",()=>{
 updateTopDate();const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();
 if(!localStorage.getItem(KEY))saveNews(demo);
-renderBreakingTicker();renderHome();
+renderBreakingTicker();renderHome();if(window.NBCloud)window.NBCloud.startNewsSync(()=>{renderBreakingTicker();renderHome()});
 document.getElementById("themeToggle")?.addEventListener("click",()=>{document.body.classList.toggle("dark");localStorage.setItem("nb24theme",document.body.classList.contains("dark")?"dark":"light")});if(localStorage.getItem("nb24theme")==="dark")document.body.classList.add("dark");
 document.getElementById("langToggle")?.addEventListener("click",()=>alert("বাংলা / English content support is enabled. Add English headlines from Admin Dashboard."));
 document.getElementById("menuToggle")?.addEventListener("click",()=>document.getElementById("navLinks").classList.toggle("open"));
@@ -56,8 +56,8 @@ document.querySelectorAll("[data-cat]").forEach(a=>a.addEventListener("click",e=
 document.getElementById("searchForm")?.addEventListener("submit",e=>{e.preventDefault();renderHome("",document.getElementById("searchInput").value)});
 document.getElementById("closeModal")?.addEventListener("click",()=>document.getElementById("articleModal").classList.remove("show"));
 document.getElementById("articleModal")?.addEventListener("click",e=>{if(e.target.id==="articleModal")e.currentTarget.classList.remove("show")});
-document.getElementById("subscribeForm")?.addEventListener("submit",e=>{e.preventDefault();alert("ধন্যবাদ! Demo subscription received.")});
-if(document.getElementById("newsForm"))initAdmin();
+document.getElementById("subscribeForm")?.addEventListener("submit",async e=>{e.preventDefault();const email=document.getElementById("subscribeEmail").value.trim();const status=document.getElementById("subscribeStatus");try{if(!window.NBCloud)throw new Error("Firebase config হয়নি");await window.NBCloud.subscribe(email);status.textContent="ধন্যবাদ! আপনার ইমেইল সাবস্ক্রাইব হয়েছে।";e.target.reset()}catch(err){status.textContent=err.message||"সাবস্ক্রিপশন হয়নি। Firebase সেটআপ পরীক্ষা করুন।"}});
+if(document.getElementById("newsForm")&&(!window.NBCloud||window.NBCloud.isAdmin()))initAdmin();
 });
 function initAdmin(){const $=id=>document.getElementById(id),form=$("newsForm");function refresh(){let n=getNews();$("statTotal").textContent=n.length;$("statBreaking").textContent=n.filter(x=>x.breaking).length;$("statCats").textContent=new Set(n.map(x=>x.category)).size;let q=$("adminSearch").value.toLowerCase();$("adminList").innerHTML=n.filter(x=>x.title.toLowerCase().includes(q)).map(x=>`<div class="admin-item"><img src="${esc(img(x))}"><div class="item-info"><b>${esc(x.title)}</b><small>${esc(x.category)} · ${x.breaking?"Breaking · ":""}${esc(x.date||"Just now")}</small></div><button class="edit-btn" data-edit="${esc(x.id)}">Edit</button><button class="delete-btn" data-delete="${esc(x.id)}">Delete</button></div>`).join("")||"<p>কোনো খবর নেই।</p>";}
 function clear(){form.reset();$("newsId").value="";$("formHeading").textContent="নতুন খবর যোগ করুন / Add News";$("saveButton").textContent="খবর প্রকাশ করুন"}
