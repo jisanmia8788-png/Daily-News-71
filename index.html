@@ -7,11 +7,12 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="breaking"><strong>BREAKING NEWS</strong><div class="ticker-window"><div class="ticker-track" id="breakingTicker"><span>বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ জানতে চোখ রাখুন NewsBangla24-এ</span></div></div><div class="top-date" id="today" aria-label="English and Bangla calendar date"></div></div>
+<div class="date-bar"><div class="date-bar-inner"><div class="top-time" id="currentTime" aria-label="Current time"><span class="clock-icon">◷</span><span id="clockText">--:-- --</span></div><div class="wrap top-date" id="today" aria-label="English and Bangla calendar date"></div></div></div>
+<div class="breaking"><strong>BREAKING NEWS</strong><div class="ticker-window"><div class="ticker-track" id="breakingTicker"><span>বাংলাদেশ ও বিশ্বের সর্বশেষ সংবাদ জানতে চোখ রাখুন NewsBangla24-এ</span></div></div></div>
 <header class="masthead wrap">
   <a class="brand" href="index.html"><span class="globe">◎</span><span>News<span class="red">Bangla</span>24<small>Trusted News. Always.</small></span></a>
   <div class="ad-banner">আপনার বিজ্ঞাপনের জায়গা <small>Advertise with us</small></div>
-  <div class="head-actions"><button id="visitorLogin" class="icon-btn">Gmail Login</button><button id="visitorLogout" class="icon-btn" hidden>Logout</button><button id="themeToggle" class="icon-btn" aria-label="Toggle theme">☾</button><button id="langToggle" class="icon-btn">বাংলা / EN</button></div>
+  <div class="head-actions"><button id="visitorLogin" class="icon-btn">Gmail Login</button><small id="visitorAuthStatus" class="auth-status" aria-live="polite"></small><button id="visitorLogout" class="icon-btn" hidden>Logout</button><button id="themeToggle" class="icon-btn" aria-label="Toggle theme">☾</button><button id="langToggle" class="icon-btn">বাংলা / EN</button></div>
 </header>
 <nav class="nav"><div class="wrap nav-inner"><button class="menu-toggle" id="menuToggle">☰</button><div class="navlinks" id="navLinks">
 <a href="#" data-cat="সব">হোম</a><a href="#latest" data-cat="জাতীয়">জাতীয়</a><a href="#latest" data-cat="রাজনীতি">রাজনীতি</a><a href="#latest" data-cat="অর্থনীতি">অর্থনীতি</a><a href="#latest" data-cat="প্রযুক্তি">প্রযুক্তি</a><a href="#latest" data-cat="খেলাধুলা">খেলাধুলা</a><a href="#latest" data-cat="বিনোদন">বিনোদন</a><a href="#latest" data-cat="আন্তর্জাতিক">আন্তর্জাতিক</a></div><form id="searchForm" class="search"><input id="searchInput" placeholder="খবর খুঁজুন..."><button>⌕</button></form></div></nav>
@@ -22,10 +23,10 @@
  <aside class="most-read"><h2>সর্বাধিক পঠিত <small>/ Most Read</small></h2><ol id="mostRead"></ol></aside>
 </section>
 <div class="section-head" id="latest"><h2><i></i> সর্বশেষ সংবাদ <small>/ Latest News</small></h2><a href="#latest">সব খবর →</a></div>
-<section class="content-grid"><div id="newsGrid" class="news-grid"></div><aside class="subscribe"><div class="mail">✉</div><h2>Stay Updated</h2><p>প্রতিদিনের সর্বশেষ খবর পেতে আমাদের সঙ্গে থাকুন।</p><form id="subscribeForm"><input id="subscribeEmail" type="email" placeholder="আপনার ইমেইল" required><button>Subscribe →</button><small id="subscribeStatus" aria-live="polite"></small></form><a href="admin.html" class="admin-link">Admin Dashboard ↗</a></aside></section>
+<section class="content-grid"><div id="newsGrid" class="news-grid"></div><aside class="subscribe"><div class="mail">✉</div><h2>Stay Updated</h2><p>প্রতিদিনের সর্বশেষ খবর পেতে আমাদের সঙ্গে থাকুন।</p><form id="subscribeForm"><input id="subscribeEmail" type="email" placeholder="আপনার ইমেইল" required><button>Subscribe →</button><small id="subscribeStatus" aria-live="polite"></small></form><a href="admin.html" class="admin-link" id="adminDashboardLink" hidden>Dashboard ↗</a></aside></section>
 <section class="category-strip"><h2>বিভাগ অনুযায়ী খবর / Browse Categories</h2><div id="categories" class="category-list"></div></section>
 </main>
-<footer><div class="wrap footer-inner"><a class="brand" href="#"><span>News<span class="red">Bangla</span>24</span></a><p>Trusted News. Always. · © <span id="year"></span> NewsBangla24</p><a href="admin.html">Admin Login</a></div></footer>
+<footer><div class="wrap footer-inner"><a class="brand" href="#"><span>News<span class="red">Bangla</span>24</span></a><p>Trusted News. Always. · © <span id="year"></span> NewsBangla24</p></div></footer>
 <div id="articleModal" class="modal" aria-hidden="true"><div class="modal-box"><button id="closeModal" class="close">×</button><div id="articleContent"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script><script src="firebase-config.js"></script><script src="cloud.js"></script><script src="app.js"></script>
 </body></html>

@@ -13,6 +13,7 @@ const getNews=()=>{try{return JSON.parse(localStorage.getItem(KEY))||demo}catch(
 const saveNews=n=>{localStorage.setItem(KEY,JSON.stringify(n));if(window.NBCloud&&window.NBCloud.isAdmin())window.NBCloud.saveNews(n).catch(e=>console.error("Cloud save:",e));};
 const esc=s=>String(s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const img=n=>n.image||"https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=700";
+const headline=n=>(document.documentElement.lang==="en"?(n.titleEn||n.title):n.title);
 
 function renderBreakingTicker(){
   const ticker=document.getElementById("breakingTicker");
@@ -28,29 +29,36 @@ function updateTopDate(){
   const date=document.getElementById("today");
   if(!date)return;
   const now=new Date();
+  const clock=document.getElementById("clockText");
+  if(clock)clock.textContent=new Intl.DateTimeFormat("en-US",{hour:"2-digit",minute:"2-digit",hour12:true}).format(now);
   const english=new Intl.DateTimeFormat("en-GB",{weekday:"short",day:"2-digit",month:"short",year:"numeric"}).format(now);
-  let bangla="";
-  try{
-    bangla=new Intl.DateTimeFormat("bn-BD-u-ca-bengali",{day:"numeric",month:"long",year:"numeric"}).format(now)+" বঙ্গাব্দ";
-  }catch(e){
-    bangla=new Intl.DateTimeFormat("bn-BD",{day:"numeric",month:"long",year:"numeric"}).format(now);
-  }
+  // Bangladesh revised Bangla calendar: year begins on 14 April.
+  const months=["বৈশাখ","জ্যৈষ্ঠ","আষাঢ়","শ্রাবণ","ভাদ্র","আশ্বিন","কার্তিক","অগ্রহায়ণ","পৌষ","মাঘ","ফাল্গুন","চৈত্র"];
+  
+  const y=now.getFullYear(), start=new Date(y,3,14), thisYear=now>=start?y:y-1;
+  const dayIndex=Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate())-new Date(thisYear,3,14))/86400000);
+  let remaining=dayIndex, month=0;
+  const leap=(thisYear%4===0 && (thisYear%100!==0 || thisYear%400===0));
+  const lengths=[31,31,31,31,31,31,30,30,30,30,leap?30:29,30];
+  while(month<11&&remaining>=lengths[month]){remaining-=lengths[month];month++;}
+  const bnDigits=n=>String(n).replace(/\d/g,d=>"০১২৩৪৫৬৭৮৯"[Number(d)]);
+  const bangla=`${bnDigits(remaining+1)} ${months[month]}, ${bnDigits(thisYear-593)} বঙ্গাব্দ`;
   date.innerHTML=`<span class="date-en">${esc(english)}</span><span class="date-bn">${esc(bangla)}</span>`;
 }
 
-function openArticle(n){const m=document.getElementById("articleModal");if(!m)return;document.getElementById("articleContent").innerHTML=`<img src="${esc(img(n))}" alt=""><span class="tag">${esc(n.category)}</span><h1>${esc(n.title)}</h1><p class="meta">${esc(n.date||"Just now")} · ${esc(n.views||"New")}</p><p><b>${esc(n.summary)}</b></p><p>${esc(n.body||n.summary)}</p>`;m.classList.add("show");m.setAttribute("aria-hidden","false")}
-function renderHome(filter="",query=""){let all=getNews();if(filter&&filter!=="সব")all=all.filter(n=>n.category===filter);if(query)all=all.filter(n=>(n.title+n.summary+n.category).toLowerCase().includes(query.toLowerCase()));let original=getNews(),hero=all.find(n=>n.featured)||all[0]||original[0];const h=document.getElementById("hero");if(h){h.style.backgroundImage=`url("${img(hero)}")`;h.innerHTML=`<div class="hero-content"><span class="tag">${esc(hero.category)}</span><h1>${esc(hero.title)}</h1><p>${esc(hero.summary)}</p><div class="meta">◷ ${esc(hero.date||"Just now")}　 ◉ ${esc(hero.views||"New")}</div></div>`;h.onclick=()=>openArticle(hero)}
-const side=all.filter(n=>n.id!==hero.id).slice(0,3);const s=document.getElementById("topStories");if(s)s.innerHTML=side.map(n=>`<article class="story-mini" data-id="${esc(n.id)}"><img src="${esc(img(n))}"><div><span class="tag">${esc(n.category)}</span><h3>${esc(n.title)}</h3><span class="meta">◷ ${esc(n.date||"Just now")}</span></div></article>`).join("");
-const grid=document.getElementById("newsGrid");if(grid)grid.innerHTML=all.filter(n=>n.id!==hero.id).map(n=>`<article class="news-card" data-id="${esc(n.id)}"><img src="${esc(img(n))}"><div class="card-copy"><span class="tag">${esc(n.category)}</span><h3>${esc(n.title)}</h3><p>${esc(n.summary)}</p><div class="meta">◷ ${esc(n.date||"Just now")}　 ◉ ${esc(n.views||"New")}</div></div></article>`).join("")||"<p>কোনো খবর পাওয়া যায়নি।</p>";
-const mr=document.getElementById("mostRead");if(mr)mr.innerHTML=original.slice(0,5).map(n=>`<li data-id="${esc(n.id)}">${esc(n.title)}</li>`).join("");
+function openArticle(n){const m=document.getElementById("articleModal");if(!m)return;document.getElementById("articleContent").innerHTML=`<img src="${esc(img(n))}" alt=""><span class="tag">${esc(n.category)}</span><h1>${esc(headline(n))}</h1><p class="meta">${esc(n.date||"Just now")} · ${esc(n.views||"New")}</p><p><b>${esc(n.summary)}</b></p><p>${esc(n.body||n.summary)}</p>`;m.classList.add("show");m.setAttribute("aria-hidden","false")}
+function renderHome(filter="",query=""){let all=getNews();if(filter&&filter!=="সব")all=all.filter(n=>n.category===filter);if(query)all=all.filter(n=>(headline(n)+n.summary+n.category).toLowerCase().includes(query.toLowerCase()));let original=getNews(),hero=all.find(n=>n.featured)||all[0]||original[0];const h=document.getElementById("hero");if(h){h.style.backgroundImage=`url("${img(hero)}")`;h.innerHTML=`<div class="hero-content"><span class="tag">${esc(hero.category)}</span><h1>${esc(headline(hero))}</h1><p>${esc(hero.summary)}</p><div class="meta">◷ ${esc(hero.date||"Just now")}　 ◉ ${esc(hero.views||"New")}</div></div>`;h.onclick=()=>openArticle(hero)}
+const side=all.filter(n=>n.id!==hero.id).slice(0,3);const s=document.getElementById("topStories");if(s)s.innerHTML=side.map(n=>`<article class="story-mini" data-id="${esc(n.id)}"><img src="${esc(img(n))}"><div><span class="tag">${esc(n.category)}</span><h3>${esc(headline(n))}</h3><span class="meta">◷ ${esc(n.date||"Just now")}</span></div></article>`).join("");
+const grid=document.getElementById("newsGrid");if(grid)grid.innerHTML=all.filter(n=>n.id!==hero.id).map(n=>`<article class="news-card" data-id="${esc(n.id)}"><img src="${esc(img(n))}"><div class="card-copy"><span class="tag">${esc(n.category)}</span><h3>${esc(headline(n))}</h3><p>${esc(n.summary)}</p><div class="meta">◷ ${esc(n.date||"Just now")}　 ◉ ${esc(n.views||"New")}</div></div></article>`).join("")||"<p>কোনো খবর পাওয়া যায়নি।</p>";
+const mr=document.getElementById("mostRead");if(mr)mr.innerHTML=original.slice(0,5).map(n=>`<li data-id="${esc(n.id)}">${esc(headline(n))}</li>`).join("");
 const cats=document.getElementById("categories");if(cats)cats.innerHTML=["সব","জাতীয়","রাজনীতি","অর্থনীতি","প্রযুক্তি","খেলাধুলা","বিনোদন","আন্তর্জাতিক","স্বাস্থ্য"].map(c=>`<button data-cat="${c}">${c}</button>`).join("");
 document.querySelectorAll("[data-id]").forEach(el=>el.addEventListener("click",()=>{let n=getNews().find(x=>x.id===el.dataset.id);if(n)openArticle(n)}));}
 document.addEventListener("DOMContentLoaded",()=>{
-updateTopDate();const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();
+updateTopDate();setInterval(updateTopDate,1000);const y=document.getElementById("year");if(y)y.textContent=new Date().getFullYear();
 if(!localStorage.getItem(KEY))saveNews(demo);
 renderBreakingTicker();renderHome();if(window.NBCloud)window.NBCloud.startNewsSync(()=>{renderBreakingTicker();renderHome()});
 document.getElementById("themeToggle")?.addEventListener("click",()=>{document.body.classList.toggle("dark");localStorage.setItem("nb24theme",document.body.classList.contains("dark")?"dark":"light")});if(localStorage.getItem("nb24theme")==="dark")document.body.classList.add("dark");
-document.getElementById("langToggle")?.addEventListener("click",()=>alert("বাংলা / English content support is enabled. Add English headlines from Admin Dashboard."));
+document.getElementById("langToggle")?.addEventListener("click",()=>{const en=document.documentElement.lang!=="en";document.documentElement.lang=en?"en":"bn";const labels=en?{home:"Home",national:"National",politics:"Politics",economy:"Economy",technology:"Technology",sports:"Sports",entertainment:"Entertainment",international:"International",latest:"Latest News",most:"Most Read",subscribe:"Stay Updated",subtext:"Get the latest news in your inbox.",search:"Search news..."}:{home:"হোম",national:"জাতীয়",politics:"রাজনীতি",economy:"অর্থনীতি",technology:"প্রযুক্তি",sports:"খেলাধুলা",entertainment:"বিনোদন",international:"আন্তর্জাতিক",latest:"সর্বশেষ সংবাদ",most:"সর্বাধিক পঠিত",subscribe:"Stay Updated",subtext:"প্রতিদিনের সর্বশেষ খবর পেতে আমাদের সঙ্গে থাকুন।",search:"খবর খুঁজুন..."};const links=document.querySelectorAll("#navLinks a");["home","national","politics","economy","technology","sports","entertainment","international"].forEach((k,i)=>{if(links[i])links[i].textContent=labels[k]});const head=document.querySelector("#latest h2");if(head)head.innerHTML=`<i></i> ${labels.latest}`;const mr=document.querySelector(".most-read h2");if(mr)mr.innerHTML=`${labels.most} <small>/ Most Read</small>`;const sub=document.querySelector(".subscribe h2");if(sub)sub.textContent=labels.subscribe;const subp=document.querySelector(".subscribe p");if(subp)subp.textContent=labels.subtext;const search=document.getElementById("searchInput");if(search)search.placeholder=labels.search;renderBreakingTicker();renderHome()});
 document.getElementById("menuToggle")?.addEventListener("click",()=>document.getElementById("navLinks").classList.toggle("open"));
 document.querySelectorAll("[data-cat]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();renderHome(a.dataset.cat)}));
 document.getElementById("searchForm")?.addEventListener("submit",e=>{e.preventDefault();renderHome("",document.getElementById("searchInput").value)});

@@ -16,8 +16,8 @@ The ZIP contains the integration code, but Google sign-in and shared online news
 ### 2) Add your Firebase config and Admin Gmail
 1. Open `firebase-config.js`.
 2. Replace all `PASTE_...` and `YOUR_PROJECT...` values with the Web app config from Firebase.
-3. Replace `your-admin@gmail.com` in `window.NB_ADMIN_EMAILS` with the exact Gmail address that will manage the website. You can add more admin emails separated by commas.
-4. Open `firestore.rules` and replace `your-admin@gmail.com` in the `isAdmin()` list with the same exact Gmail address(es).
+3. Replace `jrjisanalom@gmail.com` in `window.NB_ADMIN_EMAILS` with the exact Gmail address that will manage the website. You can add more admin emails separated by commas.
+4. Open `firestore.rules` and replace `jrjisanalom@gmail.com` in the `isAdmin()` list with the same exact Gmail address(es).
 5. Publish the rules in Firebase **Firestore → Rules**.
 
 ### 3) Deploy
