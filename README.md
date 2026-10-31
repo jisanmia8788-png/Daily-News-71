@@ -49,3 +49,15 @@ Open `index.html` or run:
 ```bash
 python -m http.server 8000
 ```
+
+
+## নতুন সংস্করণে কী যোগ হয়েছে
+- কোনো নিউজে চাপ দিলে আলাদা `article.html` পেজে পুরো সংবাদ খুলবে; পপআপ থাকবে না।
+- অ্যাডমিন নিউজের ট্যাগ যোগ করতে এবং প্রকাশ/আনপাবলিশ করতে পারবেন।
+- অ্যাডমিন প্যানেলে সাইটের নাম, স্লোগান, লোগো URL, প্রধান রং, ফন্ট, বিজ্ঞাপনের লেখা, মেনু এবং ফুটারের লেখা/লিংক পরিবর্তনের সেটিংস যোগ করা হয়েছে।
+- Footer স্বাভাবিক পেজ ফ্লোতে থাকবে এবং ছোট কনটেন্টের পেজেও নিচে থাকবে।
+
+## গুরুত্বপূর্ণ: Firebase Rules প্রকাশ করুন
+Firebase Console → Firestore Database → Rules-এ এই ZIP-এর `firestore.rules` ফাইলের সম্পূর্ণ লেখা বসিয়ে **Publish** করুন। এরপর ZIP-এর সব ফাইল GitHub Pages repository-তে আপলোড/Replace করুন। ZIP আপলোড করলেই Firestore Rules নিজে থেকে বদলায় না।
+
+Admin Gmail: `jrjisanalom@gmail.com`

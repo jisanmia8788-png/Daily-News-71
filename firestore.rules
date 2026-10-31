@@ -3,11 +3,12 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function isAdmin() {
       return request.auth != null
+        && request.auth.token.email_verified == true
         && request.auth.token.email in ['jrjisanalom@gmail.com'];
     }
     match /site/{docId} {
-      allow read: if docId == 'news';
-      allow write: if docId == 'news' && isAdmin();
+      allow read: if docId == 'news' || docId == 'settings';
+      allow write: if (docId == 'news' || docId == 'settings') && isAdmin();
     }
     match /subscribers/{email} {
       allow create, update: if request.auth != null
